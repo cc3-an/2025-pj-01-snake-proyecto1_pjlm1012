@@ -24,21 +24,73 @@ static void update_head(game_state_t* state, unsigned int snum);
 /* Tarea 1 */
 game_state_t* create_default_state() {
   // TODO: Implementar esta funcion.
-  return NULL;
+  const char *tablero[] = {
+    "####################",
+    "#                  #",
+    "# d>D    *         #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "#                  #",
+    "####################"
+  };
+  //creo variable de game state
+  game_state_t tab;
+  tab.num_rows = 18;
+  tab.num_snakes = 1;
+  
+  //meter tablero en la memoria
+  tab.board = malloc(tab.num_rows* sizeof(char*));
+  for(int i = 0; i<tab.num_rows; i++){
+    tab.board[i] = malloc(21* sizeof(char)); //21 columnas
+    strcpy(tab.board[i], tablero[i]);
+  }
+
+  //hacer snake
+  tab.snakes = malloc(sizeof(snake_t));
+  tab.snakes[0].tail_row = 2;
+  tab.snakes[0].tail_col = 2;
+  tab.snakes[0].head_row = 2;
+  tab.snakes[0].head_col = 4;
+  tab.snakes[0].live = true;
+
+  //copiar y devolver el estado
+  game_state_t *state = malloc(sizeof(game_state_t));
+  *state = tab;
+  return state;
+
 }
 
 
 /* Tarea 2 */
 void free_state(game_state_t* state) {
   // TODO: Implementar esta funcion.
+  for(int i=0; i<18; i++){//borra el tablero
+    free(state->board[i]);
+  }
+  free(state->board);//limpio board
+  free(state->snakes);//limpio la snake
+  free(state);//limpio la estructura
+
   return;
 }
 
 
 /* Tarea 3 */
 void print_board(game_state_t* state, FILE* fp) {
-  // TODO: Implementar esta funcion.
-  return;
+  for(int i=0; i<state->num_rows;i++){
+    fprintf(fp, "%s\n", state->board[i]);//imprime el string y newline
+  }
 }
 
 
@@ -81,7 +133,11 @@ static void set_board_at(game_state_t* state, unsigned int row, unsigned int col
 */
 static bool is_tail(char c) {
   // TODO: Implementar esta funcion.
+  if(c=="w"||c=="a"||c=="s"|| c=="d"){
   return true;
+  }else{
+    return false;
+  }
 }
 
 
@@ -92,7 +148,11 @@ static bool is_tail(char c) {
 */
 static bool is_head(char c) {
   // TODO: Implementar esta funcion.
-  return true;
+  if(c=="W"||c=="A"||c=="S"|| c=="D"|| c=="x"){
+    return true;
+    }else{
+      return false;
+    }
 }
 
 
@@ -102,7 +162,11 @@ static bool is_head(char c) {
 */
 static bool is_snake(char c) {
   // TODO: Implementar esta funcion.
-  return true;
+  if(is_tail(c)==true || is_head(c)==true){
+    return true;
+  }else{
+    return false;
+  }
 }
 
 
