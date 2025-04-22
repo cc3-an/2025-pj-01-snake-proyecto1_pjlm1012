@@ -391,7 +391,49 @@ void update_state(game_state_t* state, int (*add_food)(game_state_t* state)) {
 /* Tarea 5 */
 game_state_t* load_board(char* filename) {
   // TODO: Implementar esta funcion.
-  return NULL;
+  //defino maximos
+  #define FILAS_MAX 100
+  #define LARGO_MAX 1024
+
+  FILE* file = fopen(filename, "r");
+  if(file==NULL){
+    return NULL;
+  }
+  char* board[FILAS_MAX]; //arreglo maximo
+  int filas = 0;
+
+  char buffer[LARGO_MAX];
+
+  while (fgets(buffer, sizeof(buffer),file))
+  {
+    //quitar los newline
+    size_t len = strlen(buffer);
+    if(buffer[len-1]=='\n');{//ultimo char del string
+      buffer[len-1] == '\0';
+      len--;
+    }
+    //copiar la linea
+    board[filas] = malloc(len+1);
+    strcpy(board[filas], buffer);
+    filas++;
+
+  }
+  
+  fclose(file);
+  game_state_t* state = malloc(sizeof(game_state_t));
+  state->num_rows=filas;
+
+  //board final
+  state->board = malloc(filas*sizeof(char*));
+
+  for(int i=0; i<filas; i++){
+    state->board[i] = board[i];
+  }
+  state->num_snakes = 0;
+  state->snakes = NULL;
+
+  return state;
+
 }
 
 
