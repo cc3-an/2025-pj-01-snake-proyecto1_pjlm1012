@@ -75,7 +75,7 @@ game_state_t* create_default_state() {
 /* Tarea 2 */
 void free_state(game_state_t* state) {
   // TODO: Implementar esta funcion.
-  for(int i=0; i<18; i++){//borra el tablero
+  for(int i=0; i<state->num_rows; i++){//borra el tablero segun el num de rows
     free(state->board[i]);
   }
   free(state->board);//limpio board
@@ -391,50 +391,43 @@ void update_state(game_state_t* state, int (*add_food)(game_state_t* state)) {
 /* Tarea 5 */
 game_state_t* load_board(char* filename) {
   // TODO: Implementar esta funcion.
-  //defino maximos
   #define FILAS_MAX 100
   #define LARGO_MAX 1024
 
   FILE* file = fopen(filename, "r");
-  if(file==NULL){
-    return NULL;
+  if (file == NULL) {
+      return NULL;
   }
-  char* board[FILAS_MAX]; //arreglo maximo
-  int filas = 0;
 
   char buffer[LARGO_MAX];
+  char** board = malloc(FILAS_MAX * sizeof(char*));//puntero de puntero al ser un arreglo de strings
+  int filas = 0;
 
-  while (fgets(buffer, sizeof(buffer),file))
-  {
-    //quitar los newline
-    size_t len = strlen(buffer);
-    if(buffer[len-1]=='\n');{//ultimo char del string
-      buffer[len-1] == '\0';
-      len--;
-    }
-    //copiar la linea
-    board[filas] = malloc(len+1);
-    strcpy(board[filas], buffer);
-    filas++;
+  while (fgets(buffer, sizeof(buffer), file) && filas < FILAS_MAX) {
+      size_t len = strlen(buffer);
 
+      // quitar los newline
+      if (len > 0 && buffer[len - 1] == '\n') {
+          buffer[len - 1] = '\0';
+          len--;
+      }
+
+      board[filas] = malloc(len + 1);
+      strcpy(board[filas], buffer);
+      filas++;
   }
-  
+
   fclose(file);
+
   game_state_t* state = malloc(sizeof(game_state_t));
-  state->num_rows=filas;
-
-  //board final
-  state->board = malloc(filas*sizeof(char*));
-
-  for(int i=0; i<filas; i++){
-    state->board[i] = board[i];
-  }
+  state->num_rows = filas;
+  state->board = board; 
   state->num_snakes = 0;
   state->snakes = NULL;
 
   return state;
-
 }
+
 
 
 /**
@@ -446,10 +439,49 @@ game_state_t* load_board(char* filename) {
  * y colocar esta informacion en la estructura de la snake correspondiente
  * dada por la variable (snum)
 */
+
 static void find_head(game_state_t* state, unsigned int snum) {
-  // TODO: Implementar esta funcion.
-  return;
+  snake_t* snake = &state->snakes[snum];  
+  int row = snake->tail_row;  
+  int col = snake->tail_col;
+
+  char ch = get_board_at(state, row, col);  
+  char dir;
+//body a dir
+  if (ch == 'w') {
+    dir = '^';
+  } else if (ch == 'a') {
+    dir = '<';
+  } else if (ch == 's') {
+    dir = 'v';
+  } else if (ch == 'd') {
+    dir = '>';
+  } else {
+    return;  
+  }
+
+  // bucle para encontrar la cabeza
+  while (1) {
+    row = get_next_row(row, dir);
+    col = get_next_col(col, dir);
+
+    ch = get_board_at(state, row, col);
+
+    if (is_head(ch) == true) {
+      snake->head_row = row;
+      snake->head_col = col;
+      return;
+    }
+    if (ch == '^' || ch == '<' || ch == 'v' || ch == '>') {
+      dir = ch;  
+    } else {
+      return; 
+    }
+  }
 }
+
+
+
 
 /* Tarea 6.2 */
 game_state_t* initialize_snakes(game_state_t* state) {
