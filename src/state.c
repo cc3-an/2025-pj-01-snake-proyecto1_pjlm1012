@@ -481,8 +481,6 @@ static void find_head(game_state_t* state, unsigned int snum) {
 }
 
 
-
-
 /* Tarea 6.2 */
 game_state_t* initialize_snakes(game_state_t* state) {
   // TODO: Implementar esta funcion.
