@@ -486,5 +486,39 @@ static void find_head(game_state_t* state, unsigned int snum) {
 /* Tarea 6.2 */
 game_state_t* initialize_snakes(game_state_t* state) {
   // TODO: Implementar esta funcion.
-  return NULL;
+  state->num_snakes = 0;
+  //recorrer el mapa
+  for (unsigned int row = 0; row < state->num_rows; row++){
+    for(unsigned int col = 0; col < 21; col++){
+      //ver si es cola
+      char cola = get_board_at(state,row,col);
+      if(is_tail(cola)){
+        //si es cola aumentar num de snakes
+        state->num_snakes++;
+      }
+    }
+  }
+  //poner las serpientes con malloc en el arreglo
+  state->snakes = malloc(state->num_snakes * sizeof(snake_t));
+
+  //iniciar la serpiente 
+  unsigned int indice = 0;// para contar cuantas snakes
+  for (unsigned int row = 0; row < state->num_rows; row++){
+    for(unsigned int col = 0; col < 21; col++){
+      char cola = get_board_at(state,row,col);
+      if(is_tail(cola)){
+        snake_t* snake = &state->snakes[indice];
+        //iniciar la cola
+        snake->tail_row = row;
+        snake->tail_col = col;
+        snake->live = true; //debe estar viva
+
+        //buscar la cabeza
+        find_head(state, indice);
+        indice++;
+      }
+
+    }
+  }
+  return state;
 }
